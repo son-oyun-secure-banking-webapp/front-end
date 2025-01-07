@@ -33,12 +33,12 @@ const Dashboard = () => {
       <Row align={"middle"} justify={"center"}>
         <Col xs={24} style={{ margin: "0px", padding: "50px" }}>
           <Row align={"middle"} justify={"center"}>
-            <h1>Dashboard</h1>
+            <h1>Secure Banking Research</h1>
           </Row>
         </Col>
         <Col xs={24} style={{ margin: "0px", padding: "10px" }}>
-          <Row align={"middle"} justify={"center"}>
-            <h1>You have 13 queries left.</h1>
+          <Row align={"middle"} justify={"center"} style={{ color: "red" }}>
+            <h2>You have 13 queries left.</h2>
           </Row>
         </Col>
         <Col xs={8} style={{ padding: "10px" }}>

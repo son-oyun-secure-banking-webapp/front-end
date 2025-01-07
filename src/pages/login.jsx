@@ -18,7 +18,12 @@ const Login = () => {
         display: "flex",
       }}
     >
-      <Row>
+      <Row justify={"center"} align={"middle"}>
+        <Col xs={24}>
+          <Row justify={"center"} align={"middle"} style={{ padding: "50px" }}>
+            <h1>Secure Banking Research</h1>
+          </Row>
+        </Col>
         <Col xs={24} style={{ margin: "0px", padding: "0px" }}>
           <Input placeholder="Username" />
         </Col>
