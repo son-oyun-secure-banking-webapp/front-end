@@ -1,5 +1,10 @@
-import { Row, Col, Input, Button } from "antd";
+/** @format */
+
+import { Row, Col, Input, Button, Typography, Card } from "antd";
 import { useHistory } from "react-router-dom";
+import backgroundImage from "./background.png";
+
+const { Title } = Typography;
 
 const Login = () => {
   const history = useHistory();
@@ -11,33 +16,58 @@ const Login = () => {
   return (
     <div
       style={{
-        padding: "20px",
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
         height: "100vh",
+        width: "100vw",
+        display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        display: "flex",
       }}
     >
-      <Row justify={"center"} align={"middle"}>
-        <Col xs={24}>
-          <Row justify={"center"} align={"middle"} style={{ padding: "50px" }}>
-            <h1>Secure Banking Research</h1>
-          </Row>
-        </Col>
-        <Col xs={24} style={{ margin: "0px", padding: "0px" }}>
-          <Input placeholder="Username" />
-        </Col>
-        <Col xs={24} style={{ margin: "0px", padding: "0px" }}>
-          <Input.Password placeholder="Password" />
-        </Col>
-        <Col xs={24} style={{ margin: "0px", padding: "0px" }}>
-          <Button type="primary" block onClick={handleLogin}>
-            Login
-          </Button>
-        </Col>
-      </Row>
+      <Card
+        style={{
+          width: "400px",
+          padding: "30px",
+          borderRadius: "12px",
+          boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
+          backgroundColor: "rgba(255, 255, 255, 0.9)", // Hafif opak beyaz
+        }}
+      >
+        <Row justify="center" style={{ marginBottom: "20px" }}>
+          <Title level={3} style={{ color: "#1890ff", marginBottom: "0px" }}>
+            Secure Banking Research
+          </Title>
+        </Row>
+        <Row gutter={[0, 16]}>
+          <Col span={24}>
+            <Input placeholder="Username" size="large" />
+          </Col>
+          <Col span={24}>
+            <Input.Password placeholder="Password" size="large" />
+          </Col>
+          <Col span={24}>
+            <Button
+              type="primary"
+              size="large"
+              block
+              onClick={handleLogin}
+              style={{
+                backgroundColor: "#1890ff",
+                borderColor: "#1890ff",
+                fontWeight: "bold",
+              }}
+            >
+              Login
+            </Button>
+          </Col>
+        </Row>
+      </Card>
     </div>
   );
 };
 
 export default Login;
+
