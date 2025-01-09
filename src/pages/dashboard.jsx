@@ -1,75 +1,140 @@
-import { Row, Col, Button } from "antd";
-import { useHistory } from "react-router-dom";
+import { Layout, Menu, Card, Typography, Row, Col } from "antd";
+import {
+  HomeOutlined,
+  DatabaseOutlined,
+  UserOutlined,
+  LogoutOutlined,
+} from "@ant-design/icons";
+import ChartImage from "./output.png";
+
+const { Header, Sider, Content } = Layout;
+const { Title, Text } = Typography;
 
 const Dashboard = () => {
-  const history = useHistory();
-
-  const handleLogout = () => {
-    history.push("/");
-  };
-
-  const handleDataset1 = () => {
-    history.push("/dataset1");
-  };
-
-  const handleDataset2 = () => {
-    history.push("/dataset2");
-  };
-
-  const handleDataset3 = () => {
-    history.push("/dataset3");
-  };
+  const menuItems = [
+    { key: "home", icon: <HomeOutlined />, label: "Home" },
+    { key: "dataset", icon: <DatabaseOutlined />, label: "Datasets" },
+    { key: "profile", icon: <UserOutlined />, label: "Profile" },
+    { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
+  ];
 
   return (
-    <div
-      style={{
-        padding: "20px",
-        height: "80vh",
-        justifyContent: "center",
-        alignItems: "center",
-        display: "flex",
-      }}
-    >
-      <Row align={"middle"} justify={"center"}>
-        <Col xs={24} style={{ margin: "0px", padding: "50px" }}>
-          <Row align={"middle"} justify={"center"}>
-            <h1>Secure Banking Research</h1>
+    <Layout style={{ height: "100vh" }}>
+      <Sider
+        style={{ backgroundColor: "#1f2a38" }}
+        breakpoint="lg"
+        collapsedWidth="0"
+      >
+        <div
+          style={{
+            height: "64px",
+            margin: "16px",
+            background: "rgba(255, 255, 255, 0.2)",
+            borderRadius: "8px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-start",
+            color: "#ffffff",
+            fontWeight: "bold",
+            fontSize: "18px",
+            paddingLeft: "16px", // Sağ kaydırma için eklendi
+          }}
+        >
+          Secure Banking Research App
+        </div>
+        <Menu
+          theme="dark"
+          mode="inline"
+          items={menuItems}
+          style={{ backgroundColor: "#1f2a38" }}
+        />
+      </Sider>
+      <Layout>
+        <Header
+          style={{
+            backgroundColor: "#ffffff",
+            padding: "0 20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Title level={4} style={{ margin: 0, color: "#1f2a38" }}>
+            Merhaba, İrem
+          </Title>
+          <input
+            type="text"
+            placeholder="Search"
+            style={{
+              padding: "8px",
+              border: "1px solid #d9d9d9",
+              borderRadius: "4px",
+              width: "200px",
+            }}
+          />
+        </Header>
+        <Content style={{ margin: "20px", backgroundColor: "#f0f2f5" }}>
+          <Title level={3} style={{ marginBottom: "20px", color: "#1f2a38" }}>
+            Ana Metrikler
+          </Title>
+          <Row gutter={[20, 20]}>
+            <Col span={8}>
+              <Card
+                style={{
+                  backgroundColor: "#ff9c6e",
+                  color: "#ffffff",
+                  borderRadius: "8px",
+                  textAlign: "center",
+                }}
+              >
+                <Text style={{ color: "#ffffff" }}>Dataset 1</Text>
+              </Card>
+            </Col>
+            <Col span={8}>
+              <Card
+                style={{
+                  backgroundColor: "#73d13d",
+                  color: "#ffffff",
+                  borderRadius: "8px",
+                  textAlign: "center",
+                }}
+              >
+                <Text style={{ color: "#ffffff" }}>Dataset 2</Text>
+              </Card>
+            </Col>
+            <Col span={8}>
+              <Card
+                style={{
+                  backgroundColor: "#40a9ff",
+                  color: "#ffffff",
+                  borderRadius: "8px",
+                  textAlign: "center",
+                }}
+              >
+                <Text style={{ color: "#ffffff" }}>Dataset 3</Text>
+              </Card>
+            </Col>
           </Row>
-        </Col>
-        <Col xs={24} style={{ margin: "0px", padding: "10px" }}>
-          <Row align={"middle"} justify={"center"} style={{ color: "red" }}>
-            <h2>You have 13 queries left.</h2>
+          <Row style={{ marginTop: "20px" }}>
+            <Col span={24}>
+              <Card
+                style={{
+                  backgroundColor: "#ffffff",
+                  borderRadius: "8px",
+                  textAlign: "center",
+                }}
+              >
+                <img
+                  src={ChartImage}
+                  alt="Chart Placeholder"
+                  style={{ width: "100%", height: "auto", borderRadius: "8px" }}
+                />
+              </Card>
+            </Col>
           </Row>
-        </Col>
-        <Col xs={8} style={{ padding: "10px" }}>
-          <Button type="primary" block onClick={handleDataset1}>
-            Dataset 1
-          </Button>
-        </Col>
-        <Col xs={8} style={{ padding: "10px" }}>
-          <Button type="primary" block onClick={handleDataset2}>
-            Dataset 2
-          </Button>
-        </Col>
-        <Col xs={8} style={{ padding: "10px" }} onClick={handleDataset3}>
-          <Button type="primary" block>
-            Dataset 3
-          </Button>
-        </Col>
-        <Col xs={24} style={{ padding: "100px" }}>
-          <Row align={"middle"} justify={"center"}>
-            <Button
-              type="primary"
-              block
-              onClick={handleLogout}
-              style={{ width: "50%" }}
-            >
-              Logout
-            </Button>
-          </Row>
-        </Col>
-      </Row>
-    </div>
+        </Content>
+      </Layout>
+    </Layout>
   );
 };
 
