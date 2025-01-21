@@ -18,7 +18,7 @@ function App() {
           <Route path="/dataset3">
             <Dataset3 />
           </Route>
-          <Route path="/dashboard">
+          <Route path="/dashboard/:id">
             <Dashboard />
           </Route>
           <Route path="/">

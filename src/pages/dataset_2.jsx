@@ -1,127 +1,107 @@
-import { Row, Col, Button, Divider, Modal } from "antd";
+import {
+  Row,
+  Col,
+  Button,
+  Divider,
+  Modal,
+  Select,
+  Typography,
+  Card,
+} from "antd";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
 
-const Dateset2 = () => {
+const { Option } = Select;
+const { Title, Paragraph } = Typography;
+
+const Dataset2 = () => {
   const history = useHistory();
+  const [isModalOpen, setIsModalOpen] = useState({});
 
-  const [isModal1Open, setIsModal1Open] = useState(false);
-  const [isModal2Open, setIsModal2Open] = useState(false);
-  const [isModal3Open, setIsModal3Open] = useState(false);
-  const [isModal4Open, setIsModal4Open] = useState(false);
-
-  const handleOpenModal1 = () => {
-    setIsModal1Open(true);
+  const openModal = (key) => {
+    setIsModalOpen({ ...isModalOpen, [key]: true });
   };
 
-  const handleOpenModal2 = () => {
-    setIsModal2Open(true);
+  const closeModal = (key) => {
+    setIsModalOpen({ ...isModalOpen, [key]: false });
   };
 
-  const handleOpenModal3 = () => {
-    setIsModal3Open(true);
-  };
+  const queries = [
+    {
+      key: "query1",
+      title: "Query 1",
+      description: "This is the description for Query 1.",
+    },
+    {
+      key: "query2",
+      title: "Query 2",
+      description: "This is the description for Query 2.",
+    },
+    {
+      key: "query3",
+      title: "Query 3",
+      description: "This is the description for Query 3.",
+    },
+    {
+      key: "query4",
+      title: "Query 4",
+      description: "This is the description for Query 4.",
+    },
+  ];
 
-  const handleOpenModal4 = () => {
-    setIsModal4Open(true);
-  };
-
-  const handleGoBack = () => {
-    history.push("/dashboard");
-  };
   return (
     <div
       style={{
         padding: "20px",
-        height: "100vh",
-        justifyContent: "center",
-        alignItems: "center",
-        display: "flex",
+        backgroundColor: "#f0f2f5",
+        minHeight: "100vh",
       }}
     >
-      <Row align={"middle"} justify={"center"}>
-        <Modal open={isModal1Open} onCancel={() => setIsModal1Open(false)}>
-          <h1>Answer 1</h1>
-        </Modal>
-        <Modal open={isModal2Open} onCancel={() => setIsModal2Open(false)}>
-          <h1>Answer 2</h1>
-        </Modal>
-        <Modal open={isModal3Open} onCancel={() => setIsModal3Open(false)}>
-          <h1>Answer 3</h1>
-        </Modal>
-        <Modal open={isModal4Open} onCancel={() => setIsModal4Open(false)}>
-          <h1>Answer 4</h1>
-        </Modal>
-        <Col xs={24}>
-          <Row align={"middle"} justify={"center"}>
-            <Col xs={24}>
-              <Row>
-                <Col xs={12}>Query 1</Col>
-                <Col xs={12}>
-                  {" "}
-                  <Button
-                    type="primary"
-                    style={{ background: "green" }}
-                    onClick={handleOpenModal1}
-                  >
-                    Submit
-                  </Button>
-                </Col>
-              </Row>
-              <Divider />
-              <Row>
-                <Col xs={12}>Query 2</Col>
-                <Col xs={12}>
-                  {" "}
-                  <Button
-                    type="primary"
-                    style={{ background: "green" }}
-                    onClick={handleOpenModal2}
-                  >
-                    Submit
-                  </Button>
-                </Col>
-              </Row>
-              <Divider />
-              <Row>
-                <Col xs={12}>Query 3</Col>
-                <Col xs={12}>
-                  {" "}
-                  <Button
-                    type="primary"
-                    style={{ background: "green" }}
-                    onClick={handleOpenModal3}
-                  >
-                    Submit
-                  </Button>
-                </Col>
-              </Row>
-              <Divider />
-              <Row>
-                <Col xs={12}>Query 4</Col>
-                <Col xs={12}>
-                  {" "}
-                  <Button
-                    type="primary"
-                    style={{ background: "green" }}
-                    onClick={handleOpenModal4}
-                  >
-                    Submit
-                  </Button>
-                </Col>
-              </Row>
-            </Col>
-          </Row>
-        </Col>
-        <Divider />
-        <Col xs={24}>
-          <Button type="primary" block onClick={handleGoBack}>
-            Go Back
-          </Button>
-        </Col>
+      <Title level={3} style={{ textAlign: "center", color: "#1f2a38" }}>
+        Dataset 2 - Query Panel
+      </Title>
+      <Row gutter={[20, 20]} justify="center">
+        {queries.map((query) => (
+          <Col span={12} key={query.key}>
+            <Card style={{ borderRadius: "8px", backgroundColor: "#ffffff" }}>
+              <Title level={4}>{query.title}</Title>
+              <Paragraph>{query.description}</Paragraph>
+              <Select
+                placeholder="Select an option"
+                style={{ width: "100%", marginBottom: "10px" }}
+              >
+                <Option value="option1">Option 1</Option>
+                <Option value="option2">Option 2</Option>
+                <Option value="option3">Option 3</Option>
+              </Select>
+              <Button
+                type="primary"
+                style={{ background: "green" }}
+                onClick={() => openModal(query.key)}
+              >
+                Submit
+              </Button>
+            </Card>
+          </Col>
+        ))}
       </Row>
+      <Divider />
+      <Row justify="center">
+        <Button type="primary" onClick={() => history.push("/dashboard")}>
+          Go Back
+        </Button>
+      </Row>
+      {queries.map((query) => (
+        <Modal
+          key={query.key}
+          open={isModalOpen[query.key]}
+          onCancel={() => closeModal(query.key)}
+        >
+          <h1>{query.title} Result</h1>
+        </Modal>
+      ))}
     </div>
   );
 };
 
-export default Dateset2;
+export default Dataset2;

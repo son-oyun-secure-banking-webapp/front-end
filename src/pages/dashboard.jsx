@@ -1,16 +1,21 @@
 import { Layout, Menu, Card, Typography, Row, Col } from "antd";
+import { useParams } from "react-router-dom";
 import {
   HomeOutlined,
   DatabaseOutlined,
   UserOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
+import { useHistory } from "react-router-dom";
 import ChartImage from "./output.png";
 
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
-
 const Dashboard = () => {
+  const history = useHistory();
+  const { id } = useParams();
+  console.log("User ID from URL:", id);
+
   const menuItems = [
     { key: "home", icon: <HomeOutlined />, label: "Home" },
     { key: "dataset", icon: <DatabaseOutlined />, label: "Datasets" },
@@ -37,7 +42,7 @@ const Dashboard = () => {
             color: "#ffffff",
             fontWeight: "bold",
             fontSize: "18px",
-            paddingLeft: "16px", // Sağ kaydırma için eklendi
+            paddingLeft: "16px",
           }}
         >
           Secure Banking Research App
@@ -85,7 +90,9 @@ const Dashboard = () => {
                   color: "#ffffff",
                   borderRadius: "8px",
                   textAlign: "center",
+                  cursor: "pointer",
                 }}
+                onClick={() => history.push("/dataset1")}
               >
                 <Text style={{ color: "#ffffff" }}>Dataset 1</Text>
               </Card>
@@ -97,7 +104,9 @@ const Dashboard = () => {
                   color: "#ffffff",
                   borderRadius: "8px",
                   textAlign: "center",
+                  cursor: "pointer",
                 }}
+                onClick={() => history.push("/dataset2")}
               >
                 <Text style={{ color: "#ffffff" }}>Dataset 2</Text>
               </Card>
@@ -109,7 +118,9 @@ const Dashboard = () => {
                   color: "#ffffff",
                   borderRadius: "8px",
                   textAlign: "center",
+                  cursor: "pointer",
                 }}
+                onClick={() => history.push("/dataset3")}
               >
                 <Text style={{ color: "#ffffff" }}>Dataset 3</Text>
               </Card>
