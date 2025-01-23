@@ -1,15 +1,17 @@
-import { Layout, Menu, Card, Typography, Row, Col } from "antd";
+import { Layout, Menu, Card, Typography, Row, Col, Tooltip } from "antd";
 import { useParams, useHistory } from "react-router-dom";
 import {
   HomeOutlined,
   DatabaseOutlined,
   UserOutlined,
   LogoutOutlined,
+  AppstoreOutlined,
+  DollarOutlined,
+  BankOutlined,
 } from "@ant-design/icons";
-import ChartImage from "./output.png";
 
 const { Header, Sider, Content } = Layout;
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const Dashboard = () => {
   const history = useHistory();
@@ -21,6 +23,33 @@ const Dashboard = () => {
     { key: "dataset", icon: <DatabaseOutlined />, label: "Datasets" },
     { key: "profile", icon: <UserOutlined />, label: "Profile" },
     { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
+  ];
+
+  const datasetButtons = [
+    {
+      key: "dataset1",
+      title: "Application Dataset",
+      description: "Manage and analyze application data.",
+      color: "#ff9c6e",
+      icon: <AppstoreOutlined style={{ fontSize: "24px", color: "#ffffff" }} />,
+      route: `/dataset1/${id}`,
+    },
+    {
+      key: "dataset2",
+      title: "Default Payment Dataset",
+      description: "Analyze default payment data.",
+      color: "#73d13d",
+      icon: <DollarOutlined style={{ fontSize: "24px", color: "#ffffff" }} />,
+      route: `/dataset2/${id}`,
+    },
+    {
+      key: "dataset3",
+      title: "Bank Marketing Dataset",
+      description: "Explore bank marketing data.",
+      color: "#40a9ff",
+      icon: <BankOutlined style={{ fontSize: "24px", color: "#ffffff" }} />,
+      route: `/dataset3/${id}`,
+    },
   ];
 
   return (
@@ -52,6 +81,15 @@ const Dashboard = () => {
           mode="inline"
           items={menuItems}
           style={{ backgroundColor: "#1f2a38" }}
+          onClick={({ key }) => {
+            if (key === "logout") {
+              console.log("Logout clicked");
+            } else if (key === "home") {
+              history.push(`/dashboard/${id}`);
+            } else if (key === "profile") {
+              history.push(`/profile/${id}`);
+            }
+          }}
         />
       </Sider>
       <Layout>
@@ -78,70 +116,66 @@ const Dashboard = () => {
             }}
           />
         </Header>
-        <Content style={{ margin: "20px", backgroundColor: "#f0f2f5" }}>
-          <Title level={3} style={{ marginBottom: "20px", color: "#1f2a38" }}>
-            Ana Metrikler
+        <Content
+          style={{
+            margin: "20px",
+            backgroundColor: "#f0f2f5",
+            padding: "20px",
+            borderRadius: "8px",
+          }}
+        >
+          <Title
+            level={3}
+            style={{
+              marginBottom: "20px",
+              color: "#1f2a38",
+              textAlign: "center",
+            }}
+          >
+            Key Metrics, Please Select a Dataset
           </Title>
-          <Row gutter={[20, 20]}>
-            <Col span={8}>
-              <Card
-                style={{
-                  backgroundColor: "#ff9c6e",
-                  color: "#ffffff",
-                  borderRadius: "8px",
-                  textAlign: "center",
-                  cursor: "pointer",
-                }}
-                onClick={() => history.push(`/dataset1/${id}`)}
+          <Row gutter={[20, 20]} justify="center">
+            {datasetButtons.map((button) => (
+              <Col
+                xs={24}
+                sm={12}
+                md={8}
+                key={button.key}
+                style={{ display: "flex", justifyContent: "center" }}
               >
-                <Text style={{ color: "#ffffff" }}>Application Dataset</Text>
-              </Card>
-            </Col>
-            <Col span={8}>
-              <Card
-                style={{
-                  backgroundColor: "#73d13d",
-                  color: "#ffffff",
-                  borderRadius: "8px",
-                  textAlign: "center",
-                  cursor: "pointer",
-                }}
-                onClick={() => history.push(`/dataset2/${id}`)}
-              >
-                <Text style={{ color: "#ffffff" }}>Default Payment Dataset</Text>
-              </Card>
-            </Col>
-            <Col span={8}>
-              <Card
-                style={{
-                  backgroundColor: "#40a9ff",
-                  color: "#ffffff",
-                  borderRadius: "8px",
-                  textAlign: "center",
-                  cursor: "pointer",
-                }}
-                onClick={() => history.push(`/dataset3/${id}`)}
-              >
-                <Text style={{ color: "#ffffff" }}>Bank Marketing Dataset</Text>
-              </Card>
-            </Col>
-          </Row>
-          <Row style={{ marginTop: "20px" }}>
-            <Col span={24}>
-              <Card
-                style={{
-                  backgroundColor: "#ffffff",
-                  borderRadius: "8px",
-                  textAlign: "center",
-                }}
-              >
-                <img
-                  src={ChartImage}
-                  alt="Chart Placeholder"
-                  style={{ width: "100%", height: "auto", borderRadius: "8px" }}
-                />
-              </Card>
-            </Col>
+                <Tooltip title={button.description}>
+                  <Card
+                    style={{
+                      backgroundColor: button.color,
+                      color: "#ffffff",
+                      borderRadius: "8px",
+                      textAlign: "center",
+                      cursor: "pointer",
+                      width: "100%",
+                      maxWidth: "300px",
+                      transition: "transform 0.3s, box-shadow 0.3s",
+                    }}
+                    onClick={() => history.push(button.route)}
+                    hoverable
+                    bodyStyle={{ padding: "20px" }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "scale(1.05)";
+                      e.currentTarget.style.boxShadow =
+                        "0 4px 20px rgba(0,0,0,0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "scale(1)";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  >
+                    <div style={{ marginBottom: "10px" }}>{button.icon}</div>
+                    <Title level={4} style={{ color: "#ffffff" }}>
+                      {button.title}
+                    </Title>
+                  </Card>
+                </Tooltip>
+              </Col>
+            ))}
           </Row>
         </Content>
       </Layout>

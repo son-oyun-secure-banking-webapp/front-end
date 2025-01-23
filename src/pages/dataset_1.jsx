@@ -9,7 +9,7 @@ import {
   Spin,
   message,
 } from "antd";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import axios from "axios";
 
@@ -20,11 +20,32 @@ const Dataset1 = () => {
   const [isModalOpen, setIsModalOpen] = useState({});
   const [loading, setLoading] = useState({});
   const [queryResults, setQueryResults] = useState({});
+  const [budget, setBudget] = useState(null);
   const { id: userId } = useParams();
+
+  useEffect(() => {
+    fetchBudget();
+  }, []);
+
+  const fetchBudget = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:3001/get-user-budget-application",
+        {
+          params: { userId },
+        }
+      );
+      setBudget(response.data.budgetApplication);
+    // eslint-disable-next-line no-unused-vars
+    } catch (error) {
+      message.error("Error fetching budget data");
+    }
+  };
 
   const openModal = async (key) => {
     setIsModalOpen((prev) => ({ ...prev, [key]: true }));
-    fetchQueryData(key);
+    await fetchQueryData(key);
+    fetchBudget();
   };
 
   const closeModal = (key) => {
@@ -124,6 +145,7 @@ const Dataset1 = () => {
                   type="primary"
                   style={{ background: "green" }}
                   onClick={() => openModal(query.key)}
+                  disabled={budget === 0 || budget === null}
                 >
                   Submit
                 </Button>
@@ -141,6 +163,23 @@ const Dataset1 = () => {
           </Button>
         </Row>
       </div>
+      <Card
+        style={{
+          position: "fixed",
+          top: 20,
+          right: 20,
+          width: 250,
+          backgroundColor: "#ffffff",
+        }}
+      >
+        <Title level={5}>Remaining Budget</Title>
+        <Paragraph>
+          {budget !== null ? `$${budget.toFixed(2)}` : "Loading..."}
+        </Paragraph>
+        <Button type="primary" onClick={fetchBudget}>
+          Refresh
+        </Button>
+      </Card>
       {queries.map((query) => (
         <Modal
           key={query.key}
@@ -150,12 +189,6 @@ const Dataset1 = () => {
           width={800}
         >
           <h1>{query.title} Result</h1>
-          {query.key === "query3" && (
-            <p>
-              <strong>0:</strong> Non-Consummated Applications |{" "}
-              <strong>1:</strong> Consummated Applications
-            </p>
-          )}
           {loading[query.key] ? (
             <Spin size="large" />
           ) : queryResults[query.key] ? (
@@ -171,7 +204,9 @@ const Dataset1 = () => {
                       ? item.consummationIndicator === 0
                         ? "Non-Consummated Applications"
                         : "Consummated Applications"
-                      : item.state}
+                      : query.key === "query4"
+                      ? item.state
+                      : "Unknown"}
                   </strong>
                   : {item.num_applications}
                 </li>

@@ -9,7 +9,7 @@ import {
   Spin,
   message,
 } from "antd";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import axios from "axios";
 
@@ -20,11 +20,32 @@ const Dataset2 = () => {
   const [isModalOpen, setIsModalOpen] = useState({});
   const [loading, setLoading] = useState({});
   const [queryResults, setQueryResults] = useState({});
+  const [budget, setBudget] = useState(null);
   const { id: userId } = useParams();
+
+  useEffect(() => {
+    fetchBudget();
+  }, []);
+
+  const fetchBudget = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:3001/get-user-budget-default-payment",
+        {
+          params: { userId },
+        }
+      );
+      setBudget(response.data.budgetDefaultPayment);
+      // eslint-disable-next-line no-unused-vars
+    } catch (error) {
+      message.error("Error fetching budget data");
+    }
+  };
 
   const openModal = async (key) => {
     setIsModalOpen((prev) => ({ ...prev, [key]: true }));
-    fetchQueryData(key);
+    await fetchQueryData(key);
+    fetchBudget();
   };
 
   const closeModal = (key) => {
@@ -67,11 +88,21 @@ const Dataset2 = () => {
       if (response) {
         setQueryResults((prev) => ({ ...prev, [queryKey]: response.data }));
       }
-    // eslint-disable-next-line no-unused-vars
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
       message.error("Error fetching data");
     }
     setLoading((prev) => ({ ...prev, [queryKey]: false }));
+  };
+
+  const educationLevel = (education) => {
+    return education === 1
+      ? "Graduate School"
+      : education === 2
+      ? "University"
+      : education === 3
+      ? "High School"
+      : "Others";
   };
 
   const queries = [
@@ -100,7 +131,48 @@ const Dataset2 = () => {
         "Displays the number of customers grouped by age. The age groups are categorized into different brackets for better analysis.",
     },
   ];
-console.log(queryResults)
+
+  const ageGroupLabel = (age) => {
+    return age === 20
+      ? "20-30"
+      : age === 30
+      ? "30-40"
+      : age === 40
+      ? "40-50"
+      : age === 50
+      ? "50-60"
+      : age === 60
+      ? "60-70"
+      : "70-∞";
+  };
+
+  // Fonksiyon: "Others" kategorisini toplamak
+  const aggregateOthers = (data, key) => {
+    if (key === "query1" || key === "query2") {
+
+    const aggregatedData = [];
+    let othersTotal = 0;
+
+    data.forEach((item) => {
+      if (educationLevel(item.education) === "Others" || item.education === null) {
+        othersTotal += item.num_defaulters;
+      } else {
+        aggregatedData.push(item);
+      }
+    });
+
+    if (othersTotal > 0) {
+      aggregatedData.push({
+        education: "Others",
+        num_defaulters: othersTotal,
+      });
+    }
+
+    return aggregatedData;
+  }
+  return data;
+  };
+
   return (
     <div
       style={{
@@ -119,13 +191,19 @@ console.log(queryResults)
         <Row gutter={[20, 20]} justify="center">
           {queries.map((query) => (
             <Col span={12} key={query.key}>
-              <Card style={{ borderRadius: "8px", backgroundColor: "#ffffff" }}>
+              <Card
+                style={{
+                  borderRadius: "8px",
+                  backgroundColor: "#ffffff",
+                }}
+              >
                 <Title level={4}>{query.title}</Title>
                 <Paragraph>{query.description}</Paragraph>
                 <Button
                   type="primary"
                   style={{ background: "green" }}
                   onClick={() => openModal(query.key)}
+                  disabled={budget === 0 || budget === null}
                 >
                   Submit
                 </Button>
@@ -143,6 +221,23 @@ console.log(queryResults)
           </Button>
         </Row>
       </div>
+      <Card
+        style={{
+          position: "fixed",
+          top: 20,
+          right: 20,
+          width: 250,
+          backgroundColor: "#ffffff",
+        }}
+      >
+        <Title level={5}>Remaining Budget</Title>
+        <Paragraph>
+          {budget !== null ? `$${budget.toFixed(2)}` : "Loading..."}
+        </Paragraph>
+        <Button type="primary" onClick={fetchBudget}>
+          Refresh
+        </Button>
+      </Card>
       {queries.map((query) => (
         <Modal
           key={query.key}
@@ -156,39 +251,27 @@ console.log(queryResults)
             <Spin size="large" />
           ) : queryResults[query.key] ? (
             <ul>
-              {queryResults[query.key].map((item, index) => (
-                <li key={index}>
-                  <strong>
-                    {query.key === "query1" || query.key === "query2"
-                      ? `Education Level ${item.education} (${
-                          item.education === 1
-                            ? "Graduate School"
-                            : item.education === 2
-                            ? "University"
-                            : item.education === 3
-                            ? "High School"
-                            : item.education === 4
-                            ? "Others"
-                            : item.education === 5
-                            ? "Unknown"
-                            : item.education === 6
-                            ? "Elementary School"
-                            : "N/A"
-                        })`
-                      : query.key === "query3"
-                      ? item.sex === 1
-                        ? "Male"
-                        : "Female"
-                      : query.key === "query4"
-                      ? `Age Group: ${item.age_group}`
-                      : "Unknown"}
-                  </strong>
-                  :{" "}
-                  {item.num_defaulters ||
-                    item.num_delayed_customers ||
-                    item.num_customers}
-                </li>
-              ))}
+              {aggregateOthers(queryResults[query.key], query.key).map(
+                (item, index) => (
+                  <li key={index}>
+                    <strong>
+                      {query.key === "query1" || query.key === "query2"
+                        ? educationLevel(item.education)
+                        : query.key === "query3"
+                        ? item.sex === 1
+                          ? "Male"
+                          : "Female"
+                        : query.key === "query4"
+                        ? `Age Group: ${ageGroupLabel(item.age_group)}`
+                        : "Unknown"}
+                    </strong>
+                    :{" "}
+                    {item.num_defaulters ||
+                      item.num_delayed_customers ||
+                      item.num_customers}
+                  </li>
+                )
+              )}
             </ul>
           ) : (
             <p>No data available</p>

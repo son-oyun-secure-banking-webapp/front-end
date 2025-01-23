@@ -9,7 +9,7 @@ import {
   Spin,
   message,
 } from "antd";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import axios from "axios";
 
@@ -20,11 +20,32 @@ const Dataset3 = () => {
   const [isModalOpen, setIsModalOpen] = useState({});
   const [loading, setLoading] = useState({});
   const [queryResults, setQueryResults] = useState({});
+  const [budget, setBudget] = useState(null);
   const { id: userId } = useParams();
+
+  useEffect(() => {
+    fetchBudget();
+  }, []);
+
+  const fetchBudget = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:3001/get-user-budget-bank-marketing",
+        {
+          params: { userId },
+        }
+      );
+      setBudget(response.data.budgetBankMarketing);
+    // eslint-disable-next-line no-unused-vars
+    } catch (error) {
+      message.error("Error fetching budget data");
+    }
+  };
 
   const openModal = async (key) => {
     setIsModalOpen((prev) => ({ ...prev, [key]: true }));
-    fetchQueryData(key);
+    await fetchQueryData(key);
+    fetchBudget();
   };
 
   const closeModal = (key) => {
@@ -87,7 +108,6 @@ const Dataset3 = () => {
         "Shows how many customers accepted the bank's offer, grouped by marital status (Single, Married, etc.).",
     },
   ];
-  console.log(queryResults);
 
   return (
     <div
@@ -114,6 +134,7 @@ const Dataset3 = () => {
                   type="primary"
                   style={{ background: "green" }}
                   onClick={() => openModal(query.key)}
+                  disabled={budget === 0 || budget === null} // Buton devre dışı bırakıldı
                 >
                   Submit
                 </Button>
@@ -131,6 +152,23 @@ const Dataset3 = () => {
           </Button>
         </Row>
       </div>
+      <Card
+        style={{
+          position: "fixed",
+          top: 20,
+          right: 20,
+          width: 250,
+          backgroundColor: "#ffffff",
+        }}
+      >
+        <Title level={5}>Remaining Budget</Title>
+        <Paragraph>
+          {budget !== null ? `$${budget.toFixed(2)}` : "Loading..."}
+        </Paragraph>
+        <Button type="primary" onClick={fetchBudget}>
+          Refresh
+        </Button>
+      </Card>
       {queries.map((query) => (
         <Modal
           key={query.key}
@@ -148,15 +186,21 @@ const Dataset3 = () => {
                 <li key={index}>
                   <strong>
                     {query.key === "query1"
-                      ? `Education Level ${item.education}`
+                      ? `Education Level: ${item.education}`
                       : query.key === "query2"
                       ? `Month: ${item.month}`
                       : query.key === "query3"
-                      ? `${item.marital}`
+                      ? `Marital Status: ${item.marital}`
                       : "Unknown"}
                   </strong>
                   :{" "}
-                  {item.num_customers || item.num_contacts || item.num_accepted}
+                  {query.key === "query1"
+                    ? item.num_customers
+                    : query.key === "query2"
+                    ? item.num_contacts
+                    : query.key === "query3"
+                    ? item.num_accepted
+                    : "N/A"}
                 </li>
               ))}
             </ul>
