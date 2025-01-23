@@ -4,50 +4,90 @@ import {
   Button,
   Divider,
   Modal,
-  Select,
   Typography,
   Card,
+  Spin,
+  message,
 } from "antd";
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
+import axios from "axios";
 
-const { Option } = Select;
 const { Title, Paragraph } = Typography;
 
 const Dataset3 = () => {
   const history = useHistory();
   const [isModalOpen, setIsModalOpen] = useState({});
+  const [loading, setLoading] = useState({});
+  const [queryResults, setQueryResults] = useState({});
+  const { id: userId } = useParams();
 
-  const openModal = (key) => {
-    setIsModalOpen({ ...isModalOpen, [key]: true });
+  const openModal = async (key) => {
+    setIsModalOpen((prev) => ({ ...prev, [key]: true }));
+    fetchQueryData(key);
   };
 
   const closeModal = (key) => {
-    setIsModalOpen({ ...isModalOpen, [key]: false });
+    setIsModalOpen((prev) => ({ ...prev, [key]: false }));
+  };
+
+  const fetchQueryData = async (queryKey) => {
+    setLoading((prev) => ({ ...prev, [queryKey]: true }));
+    try {
+      let response;
+      if (queryKey === "query1") {
+        response = await axios.get(
+          "http://localhost:3001/get-number-of-customers-with-housing-loans-by-education-level",
+          {
+            params: { userId },
+          }
+        );
+      } else if (queryKey === "query2") {
+        response = await axios.get(
+          "http://localhost:3001/get-number-of-customers-contacted-each-month",
+          {
+            params: { userId },
+          }
+        );
+      } else if (queryKey === "query3") {
+        response = await axios.get(
+          "http://localhost:3001/get-number-of-customers-accepted-offer-by-marital-status",
+          {
+            params: { userId },
+          }
+        );
+      }
+      if (response) {
+        setQueryResults((prev) => ({ ...prev, [queryKey]: response.data }));
+      }
+    // eslint-disable-next-line no-unused-vars
+    } catch (error) {
+      message.error("Error fetching data");
+    }
+    setLoading((prev) => ({ ...prev, [queryKey]: false }));
   };
 
   const queries = [
     {
       key: "query1",
-      title: "Query 1",
-      description: "This is the description for Query 1.",
+      title: "Customers with Housing Loans by Education Level",
+      description:
+        "Shows the number of customers who have taken housing loans, categorized by education level.",
     },
     {
       key: "query2",
-      title: "Query 2",
-      description: "This is the description for Query 2.",
+      title: "Number of Customers Contacted Each Month",
+      description:
+        "Displays the total number of customers contacted per month as part of a marketing campaign.",
     },
     {
       key: "query3",
-      title: "Query 3",
-      description: "This is the description for Query 3.",
-    },
-    {
-      key: "query4",
-      title: "Query 4",
-      description: "This is the description for Query 4.",
+      title: "Accepted Offers by Marital Status",
+      description:
+        "Shows how many customers accepted the bank's offer, grouped by marital status (Single, Married, etc.).",
     },
   ];
+  console.log(queryResults);
 
   return (
     <div
@@ -55,49 +95,74 @@ const Dataset3 = () => {
         padding: "20px",
         backgroundColor: "#f0f2f5",
         minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
       }}
     >
-      <Title level={3} style={{ textAlign: "center", color: "#1f2a38" }}>
-        Dataset 3 - Query Panel
-      </Title>
-      <Row gutter={[20, 20]} justify="center">
-        {queries.map((query) => (
-          <Col span={12} key={query.key}>
-            <Card style={{ borderRadius: "8px", backgroundColor: "#ffffff" }}>
-              <Title level={4}>{query.title}</Title>
-              <Paragraph>{query.description}</Paragraph>
-              <Select
-                placeholder="Select an option"
-                style={{ width: "100%", marginBottom: "10px" }}
-              >
-                <Option value="option1">Option 1</Option>
-                <Option value="option2">Option 2</Option>
-                <Option value="option3">Option 3</Option>
-              </Select>
-              <Button
-                type="primary"
-                style={{ background: "green" }}
-                onClick={() => openModal(query.key)}
-              >
-                Submit
-              </Button>
-            </Card>
-          </Col>
-        ))}
-      </Row>
-      <Divider />
-      <Row justify="center">
-        <Button type="primary" onClick={() => history.push("/dashboard")}>
-          Go Back
-        </Button>
-      </Row>
+      <div style={{ maxWidth: "1200px", width: "100%" }}>
+        <Title level={3} style={{ textAlign: "center", color: "#1f2a38" }}>
+          Bank Marketing Dataset - Query Panel
+        </Title>
+        <Row gutter={[20, 20]} justify="center">
+          {queries.map((query) => (
+            <Col span={12} key={query.key}>
+              <Card style={{ borderRadius: "8px", backgroundColor: "#ffffff" }}>
+                <Title level={4}>{query.title}</Title>
+                <Paragraph>{query.description}</Paragraph>
+                <Button
+                  type="primary"
+                  style={{ background: "green" }}
+                  onClick={() => openModal(query.key)}
+                >
+                  Submit
+                </Button>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+        <Divider />
+        <Row justify="center">
+          <Button
+            type="primary"
+            onClick={() => history.push(`/dashboard/${userId}`)}
+          >
+            Go Back
+          </Button>
+        </Row>
+      </div>
       {queries.map((query) => (
         <Modal
           key={query.key}
           open={isModalOpen[query.key]}
           onCancel={() => closeModal(query.key)}
+          footer={null}
+          width={800}
         >
           <h1>{query.title} Result</h1>
+          {loading[query.key] ? (
+            <Spin size="large" />
+          ) : queryResults[query.key] ? (
+            <ul>
+              {queryResults[query.key].map((item, index) => (
+                <li key={index}>
+                  <strong>
+                    {query.key === "query1"
+                      ? `Education Level ${item.education}`
+                      : query.key === "query2"
+                      ? `Month: ${item.month}`
+                      : query.key === "query3"
+                      ? `${item.marital}`
+                      : "Unknown"}
+                  </strong>
+                  :{" "}
+                  {item.num_customers || item.num_contacts || item.num_accepted}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No data available</p>
+          )}
         </Modal>
       ))}
     </div>

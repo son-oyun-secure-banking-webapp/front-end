@@ -1,52 +1,101 @@
-
 import {
   Row,
   Col,
   Button,
   Divider,
   Modal,
-  Select,
   Typography,
   Card,
+  Spin,
+  message,
 } from "antd";
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
+import axios from "axios";
 
-const { Option } = Select;
 const { Title, Paragraph } = Typography;
 
 const Dataset1 = () => {
   const history = useHistory();
   const [isModalOpen, setIsModalOpen] = useState({});
+  const [loading, setLoading] = useState({});
+  const [queryResults, setQueryResults] = useState({});
+  const { id: userId } = useParams();
 
-  const openModal = (key) => {
-    setIsModalOpen({ ...isModalOpen, [key]: true });
+  const openModal = async (key) => {
+    setIsModalOpen((prev) => ({ ...prev, [key]: true }));
+    fetchQueryData(key);
   };
 
   const closeModal = (key) => {
-    setIsModalOpen({ ...isModalOpen, [key]: false });
+    setIsModalOpen((prev) => ({ ...prev, [key]: false }));
+  };
+
+  const fetchQueryData = async (queryKey) => {
+    setLoading((prev) => ({ ...prev, [queryKey]: true }));
+    try {
+      let response;
+      if (queryKey === "query1") {
+        response = await axios.get(
+          "http://localhost:3001/get-count-of-applications-by-type",
+          {
+            params: { userId },
+          }
+        );
+      } else if (queryKey === "query2") {
+        response = await axios.get(
+          "http://localhost:3001/get-count-of-applications-received-per-state",
+          {
+            params: { userId },
+          }
+        );
+      } else if (queryKey === "query3") {
+        response = await axios.get(
+          "http://localhost:3001/get-proportion-of-applications-consummated-vs-not",
+          {
+            params: { userId },
+          }
+        );
+      } else if (queryKey === "query4") {
+        response = await axios.get(
+          "http://localhost:3001/get-count-of-applications-received-in-2024",
+          {
+            params: { userId },
+          }
+        );
+      }
+      if (response) {
+        setQueryResults((prev) => ({ ...prev, [queryKey]: response.data }));
+      }
+    // eslint-disable-next-line no-unused-vars
+    } catch (error) {
+      message.error("Error fetching data");
+    }
+    setLoading((prev) => ({ ...prev, [queryKey]: false }));
   };
 
   const queries = [
     {
       key: "query1",
-      title: "Query 1",
-      description: "This is the description for Query 1.",
+      title: "Application Count by Type",
+      description: "Displays the number of applications grouped by type.",
     },
     {
       key: "query2",
-      title: "Query 2",
-      description: "This is the description for Query 2.",
+      title: "Application Count per State",
+      description: "Displays the number of applications received per state.",
     },
     {
       key: "query3",
-      title: "Query 3",
-      description: "This is the description for Query 3.",
+      title: "Proportion of Applications Consummated vs Not",
+      description:
+        "Displays the proportion of consummated (1) vs non-consummated (0) applications.",
     },
     {
       key: "query4",
-      title: "Query 4",
-      description: "This is the description for Query 4.",
+      title: "Applications Received in 2024",
+      description:
+        "Displays the number of applications received in the year 2024.",
     },
   ];
 
@@ -56,49 +105,81 @@ const Dataset1 = () => {
         padding: "20px",
         backgroundColor: "#f0f2f5",
         minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
       }}
     >
-      <Title level={3} style={{ textAlign: "center", color: "#1f2a38" }}>
-        Dataset 1 - Query Panel
-      </Title>
-      <Row gutter={[20, 20]} justify="center">
-        {queries.map((query) => (
-          <Col span={12} key={query.key}>
-            <Card style={{ borderRadius: "8px", backgroundColor: "#ffffff" }}>
-              <Title level={4}>{query.title}</Title>
-              <Paragraph>{query.description}</Paragraph>
-              <Select
-                placeholder="Select an option"
-                style={{ width: "100%", marginBottom: "10px" }}
-              >
-                <Option value="option1">Option 1</Option>
-                <Option value="option2">Option 2</Option>
-                <Option value="option3">Option 3</Option>
-              </Select>
-              <Button
-                type="primary"
-                style={{ background: "green" }}
-                onClick={() => openModal(query.key)}
-              >
-                Submit
-              </Button>
-            </Card>
-          </Col>
-        ))}
-      </Row>
-      <Divider />
-      <Row justify="center">
-        <Button type="primary" onClick={() => history.push("/dashboard")}>
-          Go Back
-        </Button>
-      </Row>
+      <div style={{ maxWidth: "1200px", width: "100%" }}>
+        <Title level={3} style={{ textAlign: "center", color: "#1f2a38" }}>
+          Application Dataset - Query Panel
+        </Title>
+        <Row gutter={[20, 20]} justify="center">
+          {queries.map((query) => (
+            <Col span={12} key={query.key}>
+              <Card style={{ borderRadius: "8px", backgroundColor: "#ffffff" }}>
+                <Title level={4}>{query.title}</Title>
+                <Paragraph>{query.description}</Paragraph>
+                <Button
+                  type="primary"
+                  style={{ background: "green" }}
+                  onClick={() => openModal(query.key)}
+                >
+                  Submit
+                </Button>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+        <Divider />
+        <Row justify="center">
+          <Button
+            type="primary"
+            onClick={() => history.push(`/dashboard/${userId}`)}
+          >
+            Go Back
+          </Button>
+        </Row>
+      </div>
       {queries.map((query) => (
         <Modal
           key={query.key}
           open={isModalOpen[query.key]}
           onCancel={() => closeModal(query.key)}
+          footer={null}
+          width={800}
         >
           <h1>{query.title} Result</h1>
+          {query.key === "query3" && (
+            <p>
+              <strong>0:</strong> Non-Consummated Applications |{" "}
+              <strong>1:</strong> Consummated Applications
+            </p>
+          )}
+          {loading[query.key] ? (
+            <Spin size="large" />
+          ) : queryResults[query.key] ? (
+            <ul>
+              {queryResults[query.key].map((item, index) => (
+                <li key={index}>
+                  <strong>
+                    {query.key === "query1"
+                      ? item.applicationType
+                      : query.key === "query2"
+                      ? item.state
+                      : query.key === "query3"
+                      ? item.consummationIndicator === 0
+                        ? "Non-Consummated Applications"
+                        : "Consummated Applications"
+                      : item.state}
+                  </strong>
+                  : {item.num_applications}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No data available</p>
+          )}
         </Modal>
       ))}
     </div>

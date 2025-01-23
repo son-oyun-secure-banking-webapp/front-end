@@ -1,16 +1,16 @@
 import { Layout, Menu, Card, Typography, Row, Col } from "antd";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import {
   HomeOutlined,
   DatabaseOutlined,
   UserOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
-import { useHistory } from "react-router-dom";
 import ChartImage from "./output.png";
 
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
+
 const Dashboard = () => {
   const history = useHistory();
   const { id } = useParams();
@@ -92,9 +92,9 @@ const Dashboard = () => {
                   textAlign: "center",
                   cursor: "pointer",
                 }}
-                onClick={() => history.push("/dataset1")}
+                onClick={() => history.push(`/dataset1/${id}`)}
               >
-                <Text style={{ color: "#ffffff" }}>Dataset 1</Text>
+                <Text style={{ color: "#ffffff" }}>Application Dataset</Text>
               </Card>
             </Col>
             <Col span={8}>
@@ -106,9 +106,9 @@ const Dashboard = () => {
                   textAlign: "center",
                   cursor: "pointer",
                 }}
-                onClick={() => history.push("/dataset2")}
+                onClick={() => history.push(`/dataset2/${id}`)}
               >
-                <Text style={{ color: "#ffffff" }}>Dataset 2</Text>
+                <Text style={{ color: "#ffffff" }}>Default Payment Dataset</Text>
               </Card>
             </Col>
             <Col span={8}>
@@ -120,9 +120,9 @@ const Dashboard = () => {
                   textAlign: "center",
                   cursor: "pointer",
                 }}
-                onClick={() => history.push("/dataset3")}
+                onClick={() => history.push(`/dataset3/${id}`)}
               >
-                <Text style={{ color: "#ffffff" }}>Dataset 3</Text>
+                <Text style={{ color: "#ffffff" }}>Bank Marketing Dataset</Text>
               </Card>
             </Col>
           </Row>
